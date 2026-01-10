@@ -1,13 +1,12 @@
-#!/usr/bin/env python3
+i#!/usr/bin/env python3
 import pandas as pd
-import string
 
 def from_numpy(array):
     # number of columns
     n_cols = array.shape[1]
 
     # create column labels: A, B, C, ...
-    columns = list(string.ascii_uppercase[:n_cols])
+    columns = [chr(ord('A') + i) for i in range(n_cols)]
 
     # create the DataFrame
     df = pd.DataFrame(array, columns=columns)
