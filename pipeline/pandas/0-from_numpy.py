@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import pandas as pd
 
+
 def from_numpy(array):
     # number of columns
     n_cols = array.shape[1]
