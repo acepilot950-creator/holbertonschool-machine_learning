@@ -6,8 +6,6 @@ Selects the last 10 rows of the High and Close columns and returns them
 as a NumPy array.
 """
 
-import pandas as pd
-
 
 def array(df):
     """
@@ -20,5 +18,4 @@ def array(df):
     Returns:
         numpy.ndarray: Array containing the selected values.
     """
-    data = df[["High", "Close"]].tail(10)
-    return data.values
+    return df[["High", "Close"]].tail(10).values
