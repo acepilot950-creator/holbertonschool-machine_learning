@@ -22,11 +22,14 @@ def concat(df1, df2):
         df2 (pd.DataFrame): Bitstamp DataFrame containing a Timestamp column.
 
     Returns:
-        pd.DataFrame: Concatenated DataFrame with a MultiIndex (source, Timestamp).
+        pd.DataFrame: Concatenated DataFrame with a MultiIndex.
     """
     df1 = index(df1)
     df2 = index(df2)
 
     df2 = df2.loc[df2.index <= 1417411920]
 
-    return pd.concat([df2, df1], keys=["bitstamp", "coinbase"])
+    return pd.concat(
+        [df2, df1],
+        keys=["bitstamp", "coinbase"]
+    )
