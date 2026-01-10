@@ -1,3 +1,4 @@
+#/usr/bin/env python3
 def line():
 
     y = np.arange(0, 11) ** 3
