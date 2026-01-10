@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-def line():
+import numpy as np
+import matplotlib.pyplot as plt
 
+def line():
     y = np.arange(0, 11) ** 3
     x = np.arange(0, 11)
 
