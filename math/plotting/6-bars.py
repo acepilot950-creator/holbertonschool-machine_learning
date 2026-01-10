@@ -25,19 +25,18 @@ def bars():
 
     plt.figure(figsize=(6.4, 4.8))
 
-    plt.bar(x, apples, width, color='red', label='Apples')
-    plt.bar(x, bananas, width, bottom=apples,
-            color='yellow', label='Bananas')
-    plt.bar(x, oranges, width, bottom=apples + bananas,
-            color='#ff8000', label='Oranges')
-    plt.bar(x, peaches, width,
-            bottom=apples + bananas + oranges,
-            color='#ffe5b4', label='Peaches')
+    plt.bar(x, apples, width=width, color='red', label='apples')
+    plt.bar(x, bananas, width=width, bottom=apples,
+            color='yellow', label='bananas')
+    plt.bar(x, oranges, width=width, bottom=apples + bananas,
+            color='#ff8000', label='oranges')
+    plt.bar(x, peaches, width=width, bottom=apples + bananas + oranges,
+            color='#ffe5b4', label='peaches')
 
     plt.xticks(x, people)
     plt.ylabel('Quantity of Fruit')
     plt.title('Number of Fruit per Person')
     plt.ylim(0, 80)
     plt.yticks(np.arange(0, 81, 10))
-    plt.legend()
+    plt.legend(loc='upper right')
     plt.show()
