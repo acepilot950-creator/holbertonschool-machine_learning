@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Module that provides a function to calculate the derivative of a polynomial."""
+"""Module that provides a function to calculate
+the derivative of a polynomial.
+"""
+
 
 def poly_derivative(poly):
     """Return the derivative of a polynomial.
@@ -9,7 +12,6 @@ def poly_derivative(poly):
     If poly is not valid, returns None.
     If the derivative is zero, returns [0].
     """
-    # Validation
     if type(poly) is not list or len(poly) == 0:
         return None
 
@@ -17,12 +19,10 @@ def poly_derivative(poly):
         if type(coef) not in (int, float):
             return None
 
-    # Derivative computation
     derivative = []
     for i in range(1, len(poly)):
         derivative.append(poly[i] * i)
 
-    # Handle zero derivative
     if not derivative or all(value == 0 for value in derivative):
         return [0]
 
