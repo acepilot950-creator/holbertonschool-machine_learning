@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Module for building a basic decision tree structure."""
 
-
 import numpy as np
 
 
@@ -26,6 +25,19 @@ class Node:
         right_depth = self.right_child.max_depth_below()
         return max(left_depth, right_depth)
 
+    def count_nodes_below(self, only_leaves=False):
+        """Count the number of nodes below the current node."""
+        left_count = self.left_child.count_nodes_below(
+            only_leaves=only_leaves
+        )
+        right_count = self.right_child.count_nodes_below(
+            only_leaves=only_leaves
+        )
+
+        if only_leaves:
+            return left_count + right_count
+        return 1 + left_count + right_count
+
 
 class Leaf(Node):
     """Class that represents a leaf of a decision tree."""
@@ -40,6 +52,10 @@ class Leaf(Node):
     def max_depth_below(self):
         """Return the depth of the leaf."""
         return self.depth
+
+    def count_nodes_below(self, only_leaves=False):
+        """Count the leaf node."""
+        return 1
 
 
 class Decision_Tree:
@@ -63,12 +79,7 @@ class Decision_Tree:
     def depth(self):
         """Return the maximum depth of the tree."""
         return self.root.max_depth_below()
-    
-    def count_nodes_below(self, only_leaves=False):
-        left = self.left_child.count_nodes_below(only_leaves=only_leaves)
-        right = self.right_child.count_nodes_below(only_leaves=only_leaves)
 
-        if only_leaves:
-            return left + right
-        else:
-            return 1 + left + right
+    def count_nodes(self, only_leaves=False):
+        """Count the number of nodes in the tree."""
+        return self.root.count_nodes_below(only_leaves=only_leaves)
