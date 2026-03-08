@@ -63,3 +63,12 @@ class Decision_Tree:
     def depth(self):
         """Return the maximum depth of the tree."""
         return self.root.max_depth_below()
+    
+    def count_nodes_below(self, only_leaves=False):
+        left = self.left_child.count_nodes_below(only_leaves=only_leaves)
+        right = self.right_child.count_nodes_below(only_leaves=only_leaves)
+
+        if only_leaves:
+            return left + right
+        else:
+            return 1 + left + right
