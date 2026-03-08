@@ -65,3 +65,16 @@ class Binomial:
         comb = factorial_n / (factorial_k * factorial_n_k)
 
         return comb * (self.p ** k) * ((1 - self.p) ** (self.n - k))
+
+    def cdf(self, k):
+        """Calculates the CDF value for k."""
+        k = int(k)
+
+        if k < 0:
+            return 0
+
+        cdf = 0
+        for i in range(k + 1):
+            cdf += self.pmf(i)
+
+        return cdf
