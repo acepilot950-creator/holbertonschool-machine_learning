@@ -54,17 +54,17 @@ class Node:
     
     def __str__(self):
         if self.is_root:
-            node_type = "root"
+            text = "root [feature={}, threshold={}]".format(
+                self.feature, self.threshold
+            )
         else:
-            node_type = "-> node"
+            text = "-> node [feature={}, threshold={}]".format(
+                self.feature, self.threshold
+            )
 
-        text = "{} [feature={}, threshold={}]".format(
-            node_type, self.feature, self.threshold
-        )
         text += "\n" + self.left_child_add_prefix(str(self.left_child))
         text += self.right_child_add_prefix(str(self.right_child))
-        return text[:-1]
-
+        return text
 
 class Leaf(Node):
     """Class that represents a leaf of a decision tree."""
