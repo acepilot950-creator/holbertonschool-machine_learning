@@ -298,6 +298,7 @@ class Decision_Tree:
                 f"Number of nodes : {self.count_nodes()}\n"
                 f"Number of leaves : {self.count_nodes(only_leaves=True)}\n"
                 f"Accuracy on training data : {self.accuracy(self.explanatory, self.target)}\n"
+                end=""
             )
 
     def accuracy(self, test_explanatory, test_target):
