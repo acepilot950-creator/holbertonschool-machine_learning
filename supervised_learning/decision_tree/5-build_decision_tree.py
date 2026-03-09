@@ -90,7 +90,7 @@ class Node:
 
         for child in [self.left_child, self.right_child]:
             child.update_bounds_below()
-    
+
     def update_indicator(self):
         """Compute and store the indicator function of the node."""
 
