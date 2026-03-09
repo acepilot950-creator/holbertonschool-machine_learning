@@ -39,20 +39,23 @@ class Node:
         return 1 + left_count + right_count
 
     def left_child_add_prefix(self, text):
+        """Add the prefix for the left child representation."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
             new_text += "    |  " + x + "\n"
-        return new_text
+        return new_text[:-1]
 
     def right_child_add_prefix(self, text):
+        """Add the prefix for the right child representation."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
             new_text += "       " + x + "\n"
-        return new_text
-    
+        return new_text[:-1]
+
     def __str__(self):
+        """Return the string representation of the node."""
         if self.is_root:
             text = "root [feature={}, threshold={}]".format(
                 self.feature, self.threshold
@@ -62,9 +65,11 @@ class Node:
                 self.feature, self.threshold
             )
 
-        text += "\n" + self.left_child_add_prefix(str(self.left_child))
-        text += self.right_child_add_prefix(str(self.right_child))
-        return text
+        left_text = self.left_child_add_prefix(str(self.left_child))
+        right_text = self.right_child_add_prefix(str(self.right_child))
+
+        return text + "\n" + left_text + "\n" + right_text
+
 
 class Leaf(Node):
     """Class that represents a leaf of a decision tree."""
@@ -85,7 +90,9 @@ class Leaf(Node):
         return 1
 
     def __str__(self):
+        """Return the string representation of the leaf."""
         return "-> leaf [value={}]".format(self.value)
+
 
 class Decision_Tree:
     """Class that represents a decision tree."""
@@ -114,4 +121,5 @@ class Decision_Tree:
         return self.root.count_nodes_below(only_leaves=only_leaves)
 
     def __str__(self):
+        """Return the string representation of the tree."""
         return self.root.__str__()
