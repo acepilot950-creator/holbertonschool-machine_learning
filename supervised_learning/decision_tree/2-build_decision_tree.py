@@ -39,34 +39,31 @@ class Node:
         return 1 + left_count + right_count
 
     def left_child_add_prefix(self, text):
-        """Add prefix to the left child string representation."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
             new_text += "    |  " + x + "\n"
-        return new_text[:-1]
+        return new_text
 
     def right_child_add_prefix(self, text):
-        """Add prefix to the right child string representation."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
             new_text += "       " + x + "\n"
-        return new_text[:-1]
-
+        return new_text
+    
     def __str__(self):
-        """Return the string representation of the node and its children."""
         if self.is_root:
-            text = ("root [feature={}, threshold={}]"
-                    .format(self.feature, self.threshold))
+            node_type = "root"
         else:
-            text = ("-> node [feature={}, threshold={}]"
-                    .format(self.feature, self.threshold))
+            node_type = "-> node"
 
-        left_text = self.left_child_add_prefix(str(self.left_child))
-        right_text = self.right_child_add_prefix(str(self.right_child))
-
-        return text + "\n" + left_text + "\n" + right_text
+        text = "{} [feature={}, threshold={}]".format(
+            node_type, self.feature, self.threshold
+        )
+        text += "\n" + self.left_child_add_prefix(str(self.left_child))
+        text += self.right_child_add_prefix(str(self.right_child))
+        return text[:-1]
 
 
 class Leaf(Node):
@@ -88,9 +85,7 @@ class Leaf(Node):
         return 1
 
     def __str__(self):
-        """Return the string representation of the leaf."""
         return "-> leaf [value={}]".format(self.value)
-
 
 class Decision_Tree:
     """Class that represents a decision tree."""
@@ -119,5 +114,4 @@ class Decision_Tree:
         return self.root.count_nodes_below(only_leaves=only_leaves)
 
     def __str__(self):
-        """Return the string representation of the tree."""
         return self.root.__str__()
