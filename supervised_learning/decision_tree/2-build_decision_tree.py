@@ -45,7 +45,7 @@ class Node:
         return 1 + left_count + right_count
 
     def left_child_add_prefix(self, text):
-        """Add prefix to the left child representation."""
+        """Add prefix to the left child subtree."""
         lines = text.split("\n")
         new_text = "+--" + lines[0] + "\n"
         for line in lines[1:]:
@@ -53,30 +53,31 @@ class Node:
         return new_text[:-1]
 
     def right_child_add_prefix(self, text):
-        """Add prefix to the right child representation."""
+        """Add prefix to the right child subtree."""
         lines = text.split("\n")
         new_text = "+--" + lines[0] + "\n"
         for line in lines[1:]:
-            new_text += "  " + line + "\n"
+            new_text += line + "\n"
         return new_text[:-1]
 
     def __str__(self):
-        """Return a string representation of the node and its children."""
+        """Return a string representation of the node subtree."""
         if self.is_root:
-            node_text = (
-                f"root [feature={self.feature}, "
-                f"threshold={self.threshold}]"
+            text = (
+                "root [feature={}, threshold={}]".format(
+                    self.feature, self.threshold
+                )
             )
         else:
-            node_text = (
-                f"-> node [feature={self.feature}, "
-                f"threshold={self.threshold}]"
+            text = (
+                "-> node [feature={}, threshold={}]".format(
+                    self.feature, self.threshold
+                )
             )
 
-        left_text = self.left_child_add_prefix(str(self.left_child))
-        right_text = self.right_child_add_prefix(str(self.right_child))
-
-        return node_text + "\n" + left_text + "\n" + right_text
+        text += "\n" + self.left_child_add_prefix(str(self.left_child))
+        text += "\n" + self.right_child_add_prefix(str(self.right_child))
+        return text
 
 
 class Leaf(Node):
