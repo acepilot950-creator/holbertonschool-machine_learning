@@ -45,19 +45,19 @@ class Node:
         return 1 + left_count + right_count
 
     def left_child_add_prefix(self, text):
-        """Add the display prefix for the left child subtree."""
+        """Add prefix to the left child representation."""
         lines = text.split("\n")
-        new_text = "    +--" + lines[0] + "\n"
+        new_text = "+--" + lines[0] + "\n"
         for line in lines[1:]:
-            new_text += "    |  " + line + "\n"
+            new_text += "| " + line + "\n"
         return new_text[:-1]
 
     def right_child_add_prefix(self, text):
-        """Add the display prefix for the right child subtree."""
+        """Add prefix to the right child representation."""
         lines = text.split("\n")
-        new_text = "    +--" + lines[0] + "\n"
+        new_text = "+--" + lines[0] + "\n"
         for line in lines[1:]:
-            new_text += "       " + line + "\n"
+            new_text += "  " + line + "\n"
         return new_text[:-1]
 
     def __str__(self):
@@ -99,7 +99,7 @@ class Leaf(Node):
 
     def __str__(self):
         """Return a string representation of the leaf."""
-        return f"-> leaf [value={self.value}]"
+        return "-> leaf [value={}]".format(self.value)
 
 
 class Decision_Tree:
@@ -135,5 +135,5 @@ class Decision_Tree:
         return self.root.count_nodes_below(only_leaves=only_leaves)
 
     def __str__(self):
-        """Return a string representation of the whole tree."""
+        """Return a string representation of the tree."""
         return self.root.__str__()
