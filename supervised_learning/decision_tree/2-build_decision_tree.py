@@ -46,7 +46,7 @@ class Node:
 
     def left_child_add_prefix(self, text):
         """Add prefix to the left child subtree."""
-        lines = text.rstrip("\n").split("\n")
+        lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
             new_text += ("    |  " + x) + "\n"
@@ -54,7 +54,7 @@ class Node:
 
     def right_child_add_prefix(self, text):
         """Add prefix to the right child subtree."""
-        lines = text.rstrip("\n").split("\n")
+        lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
             new_text += ("       " + x) + "\n"
