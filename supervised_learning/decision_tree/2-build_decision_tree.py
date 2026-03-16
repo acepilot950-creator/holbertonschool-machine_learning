@@ -45,20 +45,20 @@ class Node:
         return 1 + left_count + right_count
 
     def left_child_add_prefix(self, text):
-        """Add the left-child prefix to a subtree string."""
+        """Add prefix to the left child subtree."""
         lines = text.rstrip("\n").split("\n")
-        new_text = "+--" + lines[0] + "\n"
-        for line in lines[1:]:
-            new_text += "| " + line + "\n"
-        return new_text[:-1]
+        new_text = "    +--" + lines[0] + "\n"
+        for x in lines[1:]:
+            new_text += ("    |  " + x) + "\n"
+        return new_text
 
     def right_child_add_prefix(self, text):
-        """Add the right-child prefix to a subtree string."""
+        """Add prefix to the right child subtree."""
         lines = text.rstrip("\n").split("\n")
-        new_text = "+--" + lines[0] + "\n"
-        for line in lines[1:]:
-            new_text += line + "\n"
-        return new_text[:-1]
+        new_text = "    +--" + lines[0] + "\n"
+        for x in lines[1:]:
+            new_text += ("       " + x) + "\n"
+        return new_text
 
     def __str__(self):
         """Return a string representation of the node subtree."""
@@ -71,9 +71,10 @@ class Node:
                 self.feature, self.threshold
             )
 
-        text += "\n" + self.left_child_add_prefix(str(self.left_child))
-        text += "\n" + self.right_child_add_prefix(str(self.right_child))
-        return text
+        text += "\n"
+        text += self.left_child_add_prefix(str(self.left_child))
+        text += self.right_child_add_prefix(str(self.right_child))
+        return text[:-1]
 
 
 class Leaf(Node):
