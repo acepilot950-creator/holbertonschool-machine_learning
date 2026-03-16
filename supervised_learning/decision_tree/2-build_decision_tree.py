@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Basic decision tree classes with printing support."""
+"""Decision tree classes with printing methods."""
 
 import numpy as np
 
@@ -45,20 +45,20 @@ class Node:
         return 1 + left_count + right_count
 
     def left_child_add_prefix(self, text):
-        """Add prefix to the left child subtree."""
+        """Add the left-child prefix to a subtree string."""
         lines = text.split("\n")
-        new_text = "+--" + lines[0] + "\n"
-        for line in lines[1:]:
-            new_text += "| " + line + "\n"
-        return new_text[:-1]
+        new_text = "    +--" + lines[0] + "\n"
+        for x in lines[1:]:
+            new_text += ("    |  " + x) + "\n"
+        return new_text
 
     def right_child_add_prefix(self, text):
-        """Add prefix to the right child subtree."""
+        """Add the right-child prefix to a subtree string."""
         lines = text.split("\n")
-        new_text = "+--" + lines[0] + "\n"
-        for line in lines[1:]:
-            new_text += line + "\n"
-        return new_text[:-1]
+        new_text = "    +--" + lines[0] + "\n"
+        for x in lines[1:]:
+            new_text += ("       " + x) + "\n"
+        return new_text
 
     def __str__(self):
         """Return a string representation of the node subtree."""
@@ -75,9 +75,10 @@ class Node:
                 )
             )
 
-        text += "\n" + self.left_child_add_prefix(str(self.left_child))
-        text += "\n" + self.right_child_add_prefix(str(self.right_child))
-        return text
+        text += "\n"
+        text += self.left_child_add_prefix(str(self.left_child))
+        text += self.right_child_add_prefix(str(self.right_child))
+        return text[:-1]
 
 
 class Leaf(Node):
@@ -136,5 +137,5 @@ class Decision_Tree:
         return self.root.count_nodes_below(only_leaves=only_leaves)
 
     def __str__(self):
-        """Return a string representation of the tree."""
+        """Return the string representation of the tree."""
         return self.root.__str__()
