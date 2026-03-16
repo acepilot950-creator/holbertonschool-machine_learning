@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decision tree classes with leaf retrieval methods."""
+"""Decision tree classes with bounds update methods."""
 
 import numpy as np
 
@@ -83,6 +83,23 @@ class Node:
             self.right_child.get_leaves_below()
         )
 
+    def update_bounds_below(self):
+        """Recursively compute lower and upper bounds below this node."""
+        if self.is_root:
+            self.upper = {0: np.inf}
+            self.lower = {0: -1 * np.inf}
+
+        self.left_child.lower = self.lower.copy()
+        self.left_child.upper = self.upper.copy()
+        self.left_child.lower[self.feature] = self.threshold
+
+        self.right_child.lower = self.lower.copy()
+        self.right_child.upper = self.upper.copy()
+        self.right_child.upper[self.feature] = self.threshold
+
+        for child in [self.left_child, self.right_child]:
+            child.update_bounds_below()
+
 
 class Leaf(Node):
     """Represents a leaf of a decision tree."""
@@ -109,6 +126,10 @@ class Leaf(Node):
     def get_leaves_below(self):
         """Return the leaf itself in a list."""
         return [self]
+
+    def update_bounds_below(self):
+        """Do nothing for leaves."""
+        pass
 
 
 class Decision_Tree:
@@ -150,3 +171,7 @@ class Decision_Tree:
     def get_leaves(self):
         """Return the list of all leaves in the tree."""
         return self.root.get_leaves_below()
+
+    def update_bounds(self):
+        """Update lower and upper bounds for all nodes and leaves."""
+        self.root.update_bounds_below()
