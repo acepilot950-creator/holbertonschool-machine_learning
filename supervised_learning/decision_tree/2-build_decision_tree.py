@@ -78,7 +78,7 @@ class Node:
         text += "\n"
         text += self.left_child_add_prefix(str(self.left_child))
         text += self.right_child_add_prefix(str(self.right_child))
-        return text[:-1]
+        return text
 
 
 class Leaf(Node):
