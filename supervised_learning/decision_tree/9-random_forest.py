@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Random forest implementation based on decision trees."""
+"""Random forest implementation."""
 
-Decision_Tree = __import__('8-build_decision_tree').Decision_Tree
 import numpy as np
 
+Decision_Tree = __import__('8-build_decision_tree').Decision_Tree
 
-class Random_Forest:
+
+class Random_Forest():
     """Represents a random forest classifier."""
 
     def __init__(self, n_trees=100, max_depth=10, min_pop=1, seed=0):
