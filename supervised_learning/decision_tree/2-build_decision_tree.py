@@ -46,38 +46,33 @@ class Node:
 
     def left_child_add_prefix(self, text):
         """Add the left-child prefix to a subtree string."""
-        lines = text.split("\n")
-        new_text = "    +--" + lines[0] + "\n"
-        for x in lines[1:]:
-            new_text += ("    |  " + x) + "\n"
-        return new_text
+        lines = text.rstrip("\n").split("\n")
+        new_text = "+--" + lines[0] + "\n"
+        for line in lines[1:]:
+            new_text += "| " + line + "\n"
+        return new_text[:-1]
 
     def right_child_add_prefix(self, text):
         """Add the right-child prefix to a subtree string."""
-        lines = text.split("\n")
-        new_text = "    +--" + lines[0] + "\n"
-        for x in lines[1:]:
-            new_text += ("       " + x) + "\n"
-        return new_text
+        lines = text.rstrip("\n").split("\n")
+        new_text = "+--" + lines[0] + "\n"
+        for line in lines[1:]:
+            new_text += line + "\n"
+        return new_text[:-1]
 
     def __str__(self):
         """Return a string representation of the node subtree."""
         if self.is_root:
-            text = (
-                "root [feature={}, threshold={}]".format(
-                    self.feature, self.threshold
-                )
+            text = "root [feature={}, threshold={}]".format(
+                self.feature, self.threshold
             )
         else:
-            text = (
-                "-> node [feature={}, threshold={}]".format(
-                    self.feature, self.threshold
-                )
+            text = "-> node [feature={}, threshold={}]".format(
+                self.feature, self.threshold
             )
 
-        text += "\n"
-        text += self.left_child_add_prefix(str(self.left_child))
-        text += self.right_child_add_prefix(str(self.right_child))
+        text += "\n" + self.left_child_add_prefix(str(self.left_child))
+        text += "\n" + self.right_child_add_prefix(str(self.right_child))
         return text
 
 
