@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """
-Module that defines a deep neural network
-performing binary classification
+Module that defines a deep neural network performing binary classification
 """
-
 import numpy as np
 
 
@@ -19,20 +17,16 @@ class DeepNeuralNetwork:
 
         if not isinstance(layers, list) or len(layers) == 0:
             raise TypeError("layers must be a list of positive integers")
-
-        for layer in layers:
-            if not isinstance(layer, int) or layer <= 0:
-                raise TypeError("layers must be a list of positive integers")
+        if not all(isinstance(layer, int) and layer > 0 for layer in layers):
+            raise TypeError("layers must be a list of positive integers")
 
         self.L = len(layers)
         self.cache = {}
         self.weights = {}
 
         for i in range(self.L):
-            layer_size = layers[i]
-            prev_size = nx if i == 0 else layers[i - 1]
-
+            prev = nx if i == 0 else layers[i - 1]
             self.weights["W{}".format(i + 1)] = (
-                np.random.randn(layer_size, prev_size) * np.sqrt(2 / prev_size)
+                np.random.randn(layers[i], prev) * np.sqrt(2 / prev)
             )
-            self.weights["b{}".format(i + 1)] = np.zeros((layer_size, 1))
+            self.weights["b{}".format(i + 1)] = np.zeros((layers[i], 1))
