@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
+"""
+Module that defines a single neuron for binary classification
+"""
+
 import numpy as np
 
 
 class Neuron:
-    """Defines a single neuron performing binary classification"""
+    """Class that defines a single neuron performing binary classification"""
 
     def __init__(self, nx):
         """Initialize the neuron"""
+
         if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
         if nx < 1:
