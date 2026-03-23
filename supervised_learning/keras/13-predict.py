@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """Module for making predictions with a neural network."""
 
