@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""Defines the Yolo class."""
+"""YOLO class"""
 
 import numpy as np
 import tensorflow.keras as K
 
 
 class Yolo:
-    """YOLO v3 object detection"""
-
     def __init__(self, model_path, classes_path, class_t, nms_t, anchors):
         self.model = K.models.load_model(model_path)
         self.class_names = self._load_classes(classes_path)
@@ -43,7 +41,6 @@ class Yolo:
             confidence = self.sigmoid(output[..., 4:5])
             class_probs = self.sigmoid(output[..., 5:])
 
-            # grid
             cx = np.arange(grid_w)
             cy = np.arange(grid_h)
             cx, cy = np.meshgrid(cx, cy)
@@ -51,23 +48,22 @@ class Yolo:
             cx = np.expand_dims(cx, axis=2)
             cy = np.expand_dims(cy, axis=2)
 
-            
-            bx = (self.sigmoid(tx) + cx) / grid_w
-            by = (self.sigmoid(ty) + cy) / grid_h
+            # ✅ НЕ делим
+            bx = self.sigmoid(tx) + cx
+            by = self.sigmoid(ty) + cy
 
-            # anchors
             anchor_w = self.anchors[i, :, 0].reshape((1, 1, anchor_boxes))
             anchor_h = self.anchors[i, :, 1].reshape((1, 1, anchor_boxes))
 
-            
+            # ✅ делим только здесь
             bw = (anchor_w * np.exp(tw)) / input_w
             bh = (anchor_h * np.exp(th)) / input_h
 
-            
-            x1 = (bx - bw / 2) * image_w
-            y1 = (by - bh / 2) * image_h
-            x2 = (bx + bw / 2) * image_w
-            y2 = (by + bh / 2) * image_h
+            # ✅ масштабируем тут
+            x1 = (bx - bw / 2) * (image_w / grid_w)
+            y1 = (by - bh / 2) * (image_h / grid_h)
+            x2 = (bx + bw / 2) * (image_w / grid_w)
+            y2 = (by + bh / 2) * (image_h / grid_h)
 
             box = np.zeros((grid_h, grid_w, anchor_boxes, 4))
             box[..., 0] = x1
