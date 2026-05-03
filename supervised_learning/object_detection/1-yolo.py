@@ -48,22 +48,20 @@ class Yolo:
             cx = np.expand_dims(cx, axis=2)
             cy = np.expand_dims(cy, axis=2)
 
-            # ✅ НЕ делим
-            bx = self.sigmoid(tx) + cx
-            by = self.sigmoid(ty) + cy
+            # ✅ НОРМАЛИЗАЦИЯ (ЭТО КЛЮЧ)
+            bx = (self.sigmoid(tx) + cx) / grid_w
+            by = (self.sigmoid(ty) + cy) / grid_h
 
             anchor_w = self.anchors[i, :, 0].reshape((1, 1, anchor_boxes))
             anchor_h = self.anchors[i, :, 1].reshape((1, 1, anchor_boxes))
 
-            # ✅ делим только здесь
             bw = (anchor_w * np.exp(tw)) / input_w
             bh = (anchor_h * np.exp(th)) / input_h
 
-            # ✅ масштабируем тут
-            x1 = (bx - bw / 2) * (image_w / grid_w)
-            y1 = (by - bh / 2) * (image_h / grid_h)
-            x2 = (bx + bw / 2) * (image_w / grid_w)
-            y2 = (by + bh / 2) * (image_h / grid_h)
+            x1 = (bx - bw / 2) * image_w
+            y1 = (by - bh / 2) * image_h
+            x2 = (bx + bw / 2) * image_w
+            y2 = (by + bh / 2) * image_h
 
             box = np.zeros((grid_h, grid_w, anchor_boxes, 4))
             box[..., 0] = x1
