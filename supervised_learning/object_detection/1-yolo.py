@@ -60,11 +60,11 @@ class Yolo:
             anchor_w = self.anchors[i, :, 0].reshape((1, 1, anchor_boxes))
             anchor_h = self.anchors[i, :, 1].reshape((1, 1, anchor_boxes))
 
-            # ❗ БЕЗ деления на input
+            
             bw = anchor_w * np.exp(tw)
             bh = anchor_h * np.exp(th)
 
-            # Перевод в координаты изображения
+           
             x1 = (bx - bw / 2) * (image_w / grid_w)
             y1 = (by - bh / 2) * (image_h / grid_h)
             x2 = (bx + bw / 2) * (image_w / grid_w)
