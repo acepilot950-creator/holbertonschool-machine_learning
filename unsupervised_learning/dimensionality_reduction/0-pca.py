@@ -8,19 +8,18 @@ def pca(X, var=0.95):
     """Performs PCA on a dataset.
 
     Args:
-        X: numpy.ndarray of shape (n, d), centered dataset.
-        var: fraction of variance to maintain.
+        X: Centered dataset of shape (n, d).
+        var: Fraction of variance to maintain.
 
     Returns:
-        W: weights matrix of shape (d, nd).
+        Weights matrix of shape (d, nd).
     """
     U, S, Vt = np.linalg.svd(X)
 
-    variances = S ** 2
-    total = np.sum(variances)
-    cumulative = np.cumsum(variances) / total
+    variance = S ** 2
+    cumulative = np.cumsum(variance) / np.sum(variance)
 
-    nd = np.searchsorted(cumulative, var) + 1
+    nd = np.argmax(cumulative >= var) + 1
 
     W = Vt[:nd].T
 
