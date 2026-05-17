@@ -11,8 +11,6 @@ def pca(X, var=0.95):
     variance = S ** 2
     cumulative = np.cumsum(variance) / np.sum(variance)
 
-    nd = np.sum(cumulative <= var) + 1
+    nd = np.argmax(cumulative >= var) + 1
 
-    W = Vt[:nd].T
-
-    return W
+    return Vt[:nd].T
