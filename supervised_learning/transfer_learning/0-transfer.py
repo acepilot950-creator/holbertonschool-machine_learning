@@ -1,93 +1,90 @@
 #!/usr/bin/env python3
-"""Train a transfer learning model on CIFAR-10."""
-from tensorflow import keras as K
+"""Neural style transfer module."""
+
+import numpy as np
+import tensorflow as tf
 
 
-def preprocess_data(X, Y):
-    """Preprocess CIFAR-10 data for MobileNetV2."""
-    X_p = K.applications.mobilenet_v2.preprocess_input(X)
-    Y_p = K.utils.to_categorical(Y, 10)
-    return X_p, Y_p
+class NST:
+    """Performs neural style transfer."""
 
-
-if __name__ == "__main__":
-    (X_train, Y_train), _ = K.datasets.cifar10.load_data()
-    X_train, Y_train = preprocess_data(X_train, Y_train)
-
-    inputs = K.Input(shape=(32, 32, 3))
-
-    resized = K.layers.Lambda(
-        lambda image: K.backend.resize_images(
-            image, 3, 3, data_format="channels_last"
-        )
-    )(inputs)
-
-    base_model = K.applications.MobileNetV2(
-        include_top=False,
-        weights="imagenet",
-        input_shape=(96, 96, 3)
-    )
-
-    base_model.trainable = False
-
-    x = base_model(resized, training=False)
-    x = K.layers.GlobalAveragePooling2D()(x)
-    x = K.layers.BatchNormalization()(x)
-    x = K.layers.Dense(256, activation="relu")(x)
-    x = K.layers.Dropout(0.4)(x)
-    outputs = K.layers.Dense(10, activation="softmax")(x)
-
-    model = K.Model(inputs=inputs, outputs=outputs)
-
-    model.compile(
-        optimizer=K.optimizers.Adam(learning_rate=0.001),
-        loss="categorical_crossentropy",
-        metrics=["acc"]
-    )
-
-    callback_list = [
-        K.callbacks.EarlyStopping(
-            monitor="val_acc",
-            patience=5,
-            restore_best_weights=True
-        ),
-        K.callbacks.ReduceLROnPlateau(
-            monitor="val_loss",
-            factor=0.2,
-            patience=2,
-            min_lr=0.00001
-        )
+    style_layers = [
+        'block1_conv1',
+        'block2_conv1',
+        'block3_conv1',
+        'block4_conv1',
+        'block5_conv1'
     ]
+    content_layer = 'block5_conv2'
 
-    model.fit(
-        X_train,
-        Y_train,
-        validation_split=0.15,
-        batch_size=128,
-        epochs=25,
-        callbacks=callback_list,
-        verbose=1
-    )
+    def __init__(self, style_image, content_image, alpha=1e4, beta=1):
+        """Initialize a neural style transfer instance."""
+        if (
+            not isinstance(style_image, np.ndarray)
+            or style_image.ndim != 3
+            or style_image.shape[2] != 3
+        ):
+            raise TypeError(
+                'style_image must be a numpy.ndarray with shape (h, w, 3)'
+            )
 
-    base_model.trainable = True
+        if (
+            not isinstance(content_image, np.ndarray)
+            or content_image.ndim != 3
+            or content_image.shape[2] != 3
+        ):
+            raise TypeError(
+                'content_image must be a numpy.ndarray with shape (h, w, 3)'
+            )
 
-    for layer in base_model.layers[:-30]:
-        layer.trainable = False
+        if (
+            not isinstance(alpha, (int, float))
+            or isinstance(alpha, bool)
+            or alpha < 0
+        ):
+            raise TypeError('alpha must be a non-negative number')
 
-    model.compile(
-        optimizer=K.optimizers.Adam(learning_rate=0.00001),
-        loss="categorical_crossentropy",
-        metrics=["acc"]
-    )
+        if (
+            not isinstance(beta, (int, float))
+            or isinstance(beta, bool)
+            or beta < 0
+        ):
+            raise TypeError('beta must be a non-negative number')
 
-    model.fit(
-        X_train,
-        Y_train,
-        validation_split=0.15,
-        batch_size=128,
-        epochs=10,
-        callbacks=callback_list,
-        verbose=1
-    )
+        self.style_image = self.scale_image(style_image)
+        self.content_image = self.scale_image(content_image)
+        self.alpha = alpha
+        self.beta = beta
 
-    model.save("cifar10.h5")
+    @staticmethod
+    def scale_image(image):
+        """Scale an image so that its largest side is 512 pixels."""
+        if (
+            not isinstance(image, np.ndarray)
+            or image.ndim != 3
+            or image.shape[2] != 3
+        ):
+            raise TypeError(
+                'image must be a numpy.ndarray with shape (h, w, 3)'
+            )
+
+        height, width, _ = image.shape
+
+        scale = 512 / max(height, width)
+
+        new_height = int(height * scale)
+        new_width = int(width * scale)
+
+        image = tf.convert_to_tensor(image, dtype=tf.float32)
+        image = tf.expand_dims(image, axis=0)
+
+        image = tf.image.resize(
+            image,
+            (new_height, new_width),
+            method='bicubic'
+        )
+
+        image = image / 255.0
+        image = tf.clip_by_value(image, 0.0, 1.0)
+
+        return image
