@@ -269,6 +269,12 @@ class NST:
     @staticmethod
     def variational_cost(generated_image):
         """Calculate the variational cost of a generated image."""
+        if (
+            not isinstance(generated_image, (tf.Tensor, tf.Variable))
+            or len(generated_image.shape) not in (3, 4)
+        ):
+            raise TypeError('image must be a tensor of rank 3 or 4')
+
         return tf.reduce_sum(
             tf.image.total_variation(generated_image)
         )
@@ -347,7 +353,7 @@ class NST:
 
             if step <= 0 or step >= iterations:
                 raise ValueError(
-                    'iterations must be positive and less than iterations'
+                    'step must be positive and less than iterations'
                 )
 
         if (
@@ -383,6 +389,7 @@ class NST:
 
         for i in range(iterations + 1):
             results = self.compute_grads(generated_image)
+
             gradients = results[0]
             j_total = results[1]
             j_content = results[2]
