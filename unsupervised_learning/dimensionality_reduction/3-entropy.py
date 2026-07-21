@@ -9,7 +9,7 @@ def HP(Di, beta):
 
     Args:
         Di: A numpy.ndarray of shape (n - 1,) containing the squared
-            pairwise distances from one point to all other points.
+            distances from one point to all other points.
         beta: The beta value for the Gaussian distribution.
 
     Returns:
@@ -17,14 +17,9 @@ def HP(Di, beta):
         Pi: A numpy.ndarray of shape (n - 1,) containing P affinities.
     """
     Pi = np.exp(-Di * beta)
-    sum_Pi = np.sum(Pi)
+    Pi = Pi / np.sum(Pi)
 
-    Hi = (
-        np.log(sum_Pi)
-        + beta * np.sum(Di * Pi) / sum_Pi
-    ) / np.log(2)
-
-    Pi = Pi / sum_Pi
-    Hi = np.round(Hi, 7)
+    nonzero = Pi > 0
+    Hi = -np.sum(Pi[nonzero] * np.log2(Pi[nonzero]))
 
     return Hi, Pi
