@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
-"""Principal component analysis module."""
+"""Module for performing principal component analysis."""
 
 import numpy as np
 
 
 def pca(X, var=0.95):
-    """Calculate PCA weights that maintain more than var of the variance.
+    """Calculate the PCA weights that preserve variance above var.
 
     Args:
         X: A numpy.ndarray of shape (n, d) containing centered data.
-        var: The fraction of the original variance to maintain.
+        var: The fraction of variance that should be maintained.
 
     Returns:
-        A numpy.ndarray of shape (d, nd) containing the weights matrix.
+        A numpy.ndarray of shape (d, nd) containing the PCA weights.
     """
     _, singular_values, vh = np.linalg.svd(X, full_matrices=False)
 
-    variances = singular_values ** 2
-    cumulative_variance = np.cumsum(variances) / np.sum(variances)
+    explained_variance = singular_values ** 2
+    cumulative_variance = np.cumsum(explained_variance)
+    cumulative_variance /= np.sum(explained_variance)
 
-    nd = np.searchsorted(cumulative_variance, var, side='right') + 1
+    nd = np.sum(cumulative_variance <= var) + 1
 
     return vh[:nd].T
