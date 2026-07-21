@@ -25,5 +25,6 @@ def HP(Di, beta):
     ) / np.log(2)
 
     Pi = Pi / sum_Pi
+    Hi = np.round(Hi, 7)
 
     return Hi, Pi
