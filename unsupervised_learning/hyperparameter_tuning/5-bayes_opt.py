@@ -26,8 +26,8 @@ class BayesianOptimization:
         Calculate the next best sample location.
 
         Returns:
-            X_next: Next best sample point of shape (1,).
-            EI: Expected improvement values of shape (ac_samples,).
+            X_next: Next best sample point.
+            EI: Expected improvement values.
         """
         mu, sigma = self.gp.predict(self.X_s)
 
@@ -52,16 +52,16 @@ class BayesianOptimization:
         Optimize the black-box function.
 
         Args:
-            iterations: Maximum number of optimization iterations.
+            iterations: Maximum number of iterations.
 
         Returns:
-            X_opt: Optimal sampled input of shape (1,).
-            Y_opt: Optimal sampled function value of shape (1,).
+            X_opt: Optimal sampled input.
+            Y_opt: Optimal sampled function value.
         """
         for _ in range(iterations):
             X_next, _ = self.acquisition()
 
-            if np.any(np.isclose(self.gp.X, X_next)):
+            if np.any(self.gp.X == X_next):
                 break
 
             Y_next = self.f(X_next)
