@@ -4,9 +4,7 @@
 import numpy as np
 
 
-expectation_maximization = __import__(
-    '8-EM'
-).expectation_maximization
+expectation_maximization = __import__('8-EM').expectation_maximization
 
 
 def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5,
@@ -16,18 +14,18 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5,
 
     Args:
         X: numpy.ndarray of shape (n, d) containing the dataset.
-        kmin: Minimum number of clusters to test, inclusive.
-        kmax: Maximum number of clusters to test, inclusive.
+        kmin: Minimum number of clusters to test.
+        kmax: Maximum number of clusters to test.
         iterations: Maximum number of EM iterations.
-        tol: Non-negative float containing the EM tolerance.
-        verbose: Boolean determining whether EM prints progress.
+        tol: Non-negative tolerance for EM.
+        verbose: Whether EM should print progress.
 
     Returns:
-        best_k: Best number of clusters based on the minimum BIC.
-        best_result: Tuple containing pi, m, and S for best_k.
-        log_likelihoods: Log likelihood for every tested k.
-        bic_values: BIC value for every tested k.
-        On failure, returns four None values.
+        best_k: Best number of clusters.
+        best_result: Tuple containing pi, m, and S.
+        log_likelihoods: Log likelihoods for all tested cluster sizes.
+        bic_values: BIC values for all tested cluster sizes.
+        Returns four None values on failure.
     """
     failure = (None, None, None, None)
 
