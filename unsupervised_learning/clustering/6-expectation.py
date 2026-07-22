@@ -20,7 +20,7 @@ def expectation(X, pi, m, S):
     Returns:
         g: numpy.ndarray of shape (k, n) containing posterior
            probabilities.
-        l: Total log likelihood.
+        log_likelihood: Total log likelihood.
         Returns None, None on failure.
     """
     if not isinstance(X, np.ndarray) or X.ndim != 2:
@@ -61,7 +61,7 @@ def expectation(X, pi, m, S):
         g[cluster] = pi[cluster] * probabilities
 
     total = np.sum(g, axis=0)
-    l = np.sum(np.log(total))
+    log_likelihood = np.sum(np.log(total))
     g = g / total
 
-    return g, l
+    return g, log_likelihood
