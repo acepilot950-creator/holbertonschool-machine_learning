@@ -6,7 +6,7 @@ import numpy as np
 
 def maximization(X, g):
     """
-    Calculate the maximization step of the EM algorithm.
+    Calculate the maximization step of the EM algorithm for a GMM.
 
     Args:
         X: numpy.ndarray of shape (n, d) containing the dataset.
@@ -35,9 +35,6 @@ def maximization(X, g):
     if not np.allclose(np.sum(g, axis=0), 1):
         return None, None, None
 
-    if np.any(g < 0):
-        return None, None, None
-
     totals = np.sum(g, axis=1)
 
     pi = totals / n
@@ -47,6 +44,7 @@ def maximization(X, g):
     for cluster in range(k):
         difference = X - m[cluster]
         weighted = difference * g[cluster, :, np.newaxis]
-        S[cluster] = np.matmul(weighted.T, difference) / totals[cluster]
+        S[cluster] = np.matmul(weighted.T, difference)
+        S[cluster] /= totals[cluster]
 
     return pi, m, S
