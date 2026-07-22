@@ -39,25 +39,25 @@ class BayesianOptimization:
         """
         Calculate the next best sample location.
 
-        Uses the Expected Improvement acquisition function.
-
         Returns:
-            X_next: Next best sample point of shape (1,).
-            EI: Expected improvement values of shape (ac_samples,).
+            X_next: next best sample point
+            EI: expected improvement for all acquisition points
         """
-        mu, variance = self.gp.predict(self.X_s)
-        sigma = np.sqrt(variance)
+        mu, sigma = self.gp.predict(self.X_s)
 
         if self.minimize:
-            best = np.min(self.gp.Y)
-            improvement = best - mu - self.xsi
+            opt = np.min(self.gp.Y)
+            improvement = opt - mu - self.xsi
         else:
-            best = np.max(self.gp.Y)
-            improvement = mu - best - self.xsi
+            opt = np.max(self.gp.Y)
+            improvement = mu - opt - self.xsi
 
         with np.errstate(divide='ignore', invalid='ignore'):
             Z = improvement / sigma
-            EI = improvement * norm.cdf(Z) + sigma * norm.pdf(Z)
+            EI = (
+                improvement * norm.cdf(Z)
+                + sigma * norm.pdf(Z)
+            )
 
         EI[sigma == 0] = 0
 
