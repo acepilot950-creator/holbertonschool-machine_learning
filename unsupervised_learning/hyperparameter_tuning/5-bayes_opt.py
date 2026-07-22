@@ -42,7 +42,7 @@ class BayesianOptimization:
             Z = improvement / sigma
             EI = improvement * norm.cdf(Z) + sigma * norm.pdf(Z)
 
-        EI[sigma == 0] = 0
+        EI[np.isclose(sigma, 0)] = 0
         X_next = self.X_s[np.argmax(EI)]
 
         return X_next, EI
@@ -52,16 +52,16 @@ class BayesianOptimization:
         Optimize the black-box function.
 
         Args:
-            iterations: Maximum number of iterations.
+            iterations: Maximum number of optimization iterations.
 
         Returns:
-            X_opt: Optimal sampled input.
-            Y_opt: Optimal sampled function value.
+            X_opt: Optimal sampled input of shape (1,).
+            Y_opt: Optimal sampled output of shape (1,).
         """
         for _ in range(iterations):
             X_next, _ = self.acquisition()
 
-            if np.any(self.gp.X == X_next):
+            if np.any(np.isclose(self.gp.X, X_next)):
                 break
 
             Y_next = self.f(X_next)
