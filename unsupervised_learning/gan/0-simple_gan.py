@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Defines a simple Generative Adversarial Network."""
+"""Simple Generative Adversarial Network module."""
 
 import tensorflow as tf
 from tensorflow import keras
@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 
 
 class Simple_GAN(keras.Model):
-    """Defines a simple Generative Adversarial Network."""
+    """Simple Generative Adversarial Network model."""
 
     def __init__(self, generator, discriminator, latent_generator,
                  real_examples, batch_size=200, disc_iter=2,
                  learning_rate=0.005):
-        """Initialize the Simple GAN model."""
+        """Initialize a Simple GAN instance."""
         super().__init__()
 
         self.latent_generator = latent_generator
@@ -31,7 +31,7 @@ class Simple_GAN(keras.Model):
             lambda x:
             tf.keras.losses.MeanSquaredError()(
                 x,
-                tf.ones(x.shape)
+                tf.ones_like(x)
             )
         )
 
@@ -50,11 +50,11 @@ class Simple_GAN(keras.Model):
             lambda x, y:
             tf.keras.losses.MeanSquaredError()(
                 x,
-                tf.ones(x.shape)
+                tf.ones_like(x)
             )
             + tf.keras.losses.MeanSquaredError()(
                 y,
-                -tf.ones(y.shape)
+                -tf.ones_like(y)
             )
         )
 
