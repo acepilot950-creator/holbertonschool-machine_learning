@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Defines a simple Generative Adversarial Network."""
+"""Simple Generative Adversarial Network."""
 
 import tensorflow as tf
 from tensorflow import keras
@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 
 
 class Simple_GAN(keras.Model):
-    """Represents a simple Generative Adversarial Network."""
+    """Defines a simple Generative Adversarial Network."""
 
     def __init__(self, generator, discriminator, latent_generator,
                  real_examples, batch_size=200, disc_iter=2,
                  learning_rate=0.005):
-        """Initialize the Simple GAN model."""
+        """Initialize the Simple GAN."""
         super().__init__()
 
         self.latent_generator = latent_generator
@@ -27,13 +27,13 @@ class Simple_GAN(keras.Model):
         self.beta_1 = 0.5
         self.beta_2 = 0.9
 
-        self.generator.loss = (
-            lambda x, y:
-            tf.keras.losses.MeanSquaredError()(
-                x,
-                tf.ones_like(x)
+        def generator_loss(fake_output, unused):
+            """Calculate the generator loss."""
+            return tf.reduce_mean(
+                tf.square(fake_output - tf.ones_like(fake_output))
             )
-        )
+
+        self.generator.loss = generator_loss
 
         self.generator.optimizer = keras.optimizers.Adam(
             learning_rate=self.learning_rate,
@@ -46,17 +46,19 @@ class Simple_GAN(keras.Model):
             loss=self.generator.loss
         )
 
-        self.discriminator.loss = (
-            lambda x, y:
-            tf.keras.losses.MeanSquaredError()(
-                x,
-                tf.ones_like(x)
+        def discriminator_loss(real_output, fake_output):
+            """Calculate the discriminator loss."""
+            real_loss = tf.reduce_mean(
+                tf.square(real_output - tf.ones_like(real_output))
             )
-            + tf.keras.losses.MeanSquaredError()(
-                y,
-                -tf.ones_like(y)
+
+            fake_loss = tf.reduce_mean(
+                tf.square(fake_output + tf.ones_like(fake_output))
             )
-        )
+
+            return real_loss + fake_loss
+
+        self.discriminator.loss = discriminator_loss
 
         self.discriminator.optimizer = keras.optimizers.Adam(
             learning_rate=self.learning_rate,
@@ -86,13 +88,8 @@ class Simple_GAN(keras.Model):
         if size is None:
             size = self.batch_size
 
-        sorted_indices = tf.range(
-            tf.shape(self.real_examples)[0]
-        )
-
-        random_indices = tf.random.shuffle(
-            sorted_indices
-        )[:size]
+        indices = tf.range(tf.shape(self.real_examples)[0])
+        random_indices = tf.random.shuffle(indices)[:size]
 
         return tf.gather(
             self.real_examples,
@@ -102,9 +99,14 @@ class Simple_GAN(keras.Model):
     def train_step(self, useless_argument):
         """Perform one complete GAN training step."""
         for _ in range(self.disc_iter):
-            with tf.GradientTape() as tape:
+            with tf.GradientTape() as discr_tape:
                 real_sample = self.get_real_sample()
-                fake_sample = self.get_fake_sample()
+
+                fake_sample = self.get_fake_sample(
+                    training=False
+                )
+
+                fake_sample = tf.stop_gradient(fake_sample)
 
                 real_output = self.discriminator(
                     real_sample,
@@ -121,19 +123,25 @@ class Simple_GAN(keras.Model):
                     fake_output
                 )
 
-            discr_gradients = tape.gradient(
+            discr_gradients = discr_tape.gradient(
                 discr_loss,
                 self.discriminator.trainable_variables
             )
 
-            self.discriminator.optimizer.apply_gradients(
-                zip(
+            discr_gradients_and_variables = [
+                (gradient, variable)
+                for gradient, variable in zip(
                     discr_gradients,
                     self.discriminator.trainable_variables
                 )
+                if gradient is not None
+            ]
+
+            self.discriminator.optimizer.apply_gradients(
+                discr_gradients_and_variables
             )
 
-        with tf.GradientTape() as tape:
+        with tf.GradientTape() as gen_tape:
             fake_sample = self.get_fake_sample(
                 training=True
             )
@@ -148,16 +156,22 @@ class Simple_GAN(keras.Model):
                 None
             )
 
-        gen_gradients = tape.gradient(
+        gen_gradients = gen_tape.gradient(
             gen_loss,
             self.generator.trainable_variables
         )
 
-        self.generator.optimizer.apply_gradients(
-            zip(
+        gen_gradients_and_variables = [
+            (gradient, variable)
+            for gradient, variable in zip(
                 gen_gradients,
                 self.generator.trainable_variables
             )
+            if gradient is not None
+        ]
+
+        self.generator.optimizer.apply_gradients(
+            gen_gradients_and_variables
         )
 
         return {
