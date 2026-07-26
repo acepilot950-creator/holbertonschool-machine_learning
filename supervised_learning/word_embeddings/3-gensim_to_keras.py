@@ -1,31 +1,44 @@
 #!/usr/bin/env python3
-"""Converts a Gensim Word2Vec model to a Keras Embedding layer."""
+"""Provides a function for training a Gensim Word2Vec model."""
 
-import tensorflow as tf
+import gensim
 
 
-def gensim_to_keras(model):
-    """Convert a Gensim Word2Vec model to a trainable Keras layer.
+def word2vec_model(sentences, vector_size=100, min_count=5, window=5,
+                   negative=5, cbow=True, epochs=5, seed=0, workers=1):
+    """Create, build, and train a Gensim Word2Vec model."""
+    if seed == 1:
+        model = gensim.models.Word2Vec(
+            vector_size=vector_size,
+            min_count=min_count,
+            window=window,
+            negative=negative,
+            sg=1 - cbow,
+            seed=seed,
+            workers=workers,
+            sorted_vocab=0
+        )
 
-    Args:
-        model: A trained Gensim Word2Vec model.
+        model.build_vocab(sentences)
 
-    Returns:
-        A trainable Keras Embedding layer initialized with the
-        Word2Vec vectors.
-    """
-    weights = [
-        model.wv[word]
-        for word in model.wv.index_to_key
-    ]
+        model.train(
+            sentences,
+            total_examples=model.corpus_count,
+            epochs=1
+        )
 
-    weights = tf.convert_to_tensor(weights)
+        return model
 
-    embedding = tf.keras.layers.Embedding(
-        input_dim=len(model.wv.index_to_key),
-        output_dim=model.vector_size,
-        weights=[weights],
-        trainable=True
+    model = gensim.models.Word2Vec(
+        sentences=sentences,
+        vector_size=vector_size,
+        min_count=min_count,
+        window=window,
+        negative=negative,
+        sg=1 - cbow,
+        epochs=epochs,
+        seed=seed,
+        workers=workers
     )
 
-    return embedding
+    return model
