@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Generative Adversarial Network."""
+"""Defines a simple Generative Adversarial Network."""
 
 import tensorflow as tf
 from tensorflow import keras
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 class Simple_GAN(keras.Model):
-    """Defines a simple Generative Adversarial Network."""
+    """Represents a simple Generative Adversarial Network."""
 
     def __init__(self, generator, discriminator, latent_generator,
                  real_examples, batch_size=200, disc_iter=2,
@@ -30,7 +30,8 @@ class Simple_GAN(keras.Model):
         self.generator.loss = (
             lambda x, y:
             tf.keras.losses.MeanSquaredError()(
-                x, tf.ones(x.shape)
+                x,
+                tf.ones_like(x)
             )
         )
 
@@ -48,10 +49,12 @@ class Simple_GAN(keras.Model):
         self.discriminator.loss = (
             lambda x, y:
             tf.keras.losses.MeanSquaredError()(
-                x, tf.ones(x.shape)
+                x,
+                tf.ones_like(x)
             )
             + tf.keras.losses.MeanSquaredError()(
-                y, -tf.ones(y.shape)
+                y,
+                -tf.ones_like(y)
             )
         )
 
@@ -67,12 +70,14 @@ class Simple_GAN(keras.Model):
         )
 
     def get_fake_sample(self, size=None, training=False):
-        """Generate a batch of fake samples."""
+        """Generate and return a batch of fake samples."""
         if size is None:
             size = self.batch_size
 
+        latent_sample = self.latent_generator(size)
+
         return self.generator(
-            self.latent_generator(size),
+            latent_sample,
             training=training
         )
 
@@ -81,65 +86,76 @@ class Simple_GAN(keras.Model):
         if size is None:
             size = self.batch_size
 
-        sorted_indices = tf.range(tf.shape(self.real_examples)[0])
-        random_indices = tf.random.shuffle(sorted_indices)[:size]
+        sorted_indices = tf.range(
+            tf.shape(self.real_examples)[0]
+        )
 
-        return tf.gather(self.real_examples, random_indices)
+        random_indices = tf.random.shuffle(
+            sorted_indices
+        )[:size]
+
+        return tf.gather(
+            self.real_examples,
+            random_indices
+        )
 
     def train_step(self, useless_argument):
-        """Perform one GAN training step."""
+        """Perform one complete GAN training step."""
         for _ in range(self.disc_iter):
             with tf.GradientTape() as tape:
                 real_sample = self.get_real_sample()
                 fake_sample = self.get_fake_sample()
 
-                real_prediction = self.discriminator(
+                real_output = self.discriminator(
                     real_sample,
                     training=True
                 )
-                fake_prediction = self.discriminator(
+
+                fake_output = self.discriminator(
                     fake_sample,
                     training=True
                 )
 
                 discr_loss = self.discriminator.loss(
-                    real_prediction,
-                    fake_prediction
+                    real_output,
+                    fake_output
                 )
 
-            gradients = tape.gradient(
+            discr_gradients = tape.gradient(
                 discr_loss,
                 self.discriminator.trainable_variables
             )
 
             self.discriminator.optimizer.apply_gradients(
                 zip(
-                    gradients,
+                    discr_gradients,
                     self.discriminator.trainable_variables
                 )
             )
 
         with tf.GradientTape() as tape:
-            fake_sample = self.get_fake_sample(training=True)
+            fake_sample = self.get_fake_sample(
+                training=True
+            )
 
-            fake_prediction = self.discriminator(
+            fake_output = self.discriminator(
                 fake_sample,
                 training=False
             )
 
             gen_loss = self.generator.loss(
-                fake_prediction,
+                fake_output,
                 None
             )
 
-        gradients = tape.gradient(
+        gen_gradients = tape.gradient(
             gen_loss,
             self.generator.trainable_variables
         )
 
         self.generator.optimizer.apply_gradients(
             zip(
-                gradients,
+                gen_gradients,
                 self.generator.trainable_variables
             )
         )
