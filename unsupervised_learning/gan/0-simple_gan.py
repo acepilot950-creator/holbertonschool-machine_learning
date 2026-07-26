@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Generative Adversarial Network module."""
+"""Defines a simple Generative Adversarial Network."""
 
 import tensorflow as tf
 from tensorflow import keras
@@ -13,7 +13,7 @@ class Simple_GAN(keras.Model):
     def __init__(self, generator, discriminator, latent_generator,
                  real_examples, batch_size=200, disc_iter=2,
                  learning_rate=0.005):
-        """Initialize a Simple GAN model."""
+        """Initialize the Simple GAN."""
         super().__init__()
 
         self.latent_generator = latent_generator
@@ -31,7 +31,7 @@ class Simple_GAN(keras.Model):
             lambda x:
             tf.keras.losses.MeanSquaredError()(
                 x,
-                tf.ones(x.shape)
+                tf.ones_like(x)
             )
         )
 
@@ -50,11 +50,11 @@ class Simple_GAN(keras.Model):
             lambda x, y:
             tf.keras.losses.MeanSquaredError()(
                 x,
-                tf.ones(x.shape)
+                tf.ones_like(x)
             )
             + tf.keras.losses.MeanSquaredError()(
                 y,
-                -tf.ones(y.shape)
+                -tf.ones_like(y)
             )
         )
 
@@ -70,7 +70,7 @@ class Simple_GAN(keras.Model):
         )
 
     def get_fake_sample(self, size=None, training=False):
-        """Generate fake samples of the requested size."""
+        """Generate fake samples."""
         if size is None:
             size = self.batch_size
 
@@ -80,7 +80,7 @@ class Simple_GAN(keras.Model):
         )
 
     def get_real_sample(self, size=None):
-        """Return random real samples of the requested size."""
+        """Return randomly selected real samples."""
         if size is None:
             size = self.batch_size
 
@@ -98,59 +98,61 @@ class Simple_GAN(keras.Model):
         )
 
     def train_step(self, useless_argument):
-        """Perform one complete training step for the GAN."""
+        """Perform one complete GAN training step."""
         for _ in range(self.disc_iter):
             with tf.GradientTape() as tape:
                 real_sample = self.get_real_sample()
                 fake_sample = self.get_fake_sample()
 
-                real_prediction = self.discriminator(
+                real_output = self.discriminator(
                     real_sample,
                     training=True
                 )
 
-                fake_prediction = self.discriminator(
+                fake_output = self.discriminator(
                     fake_sample,
                     training=True
                 )
 
                 discr_loss = self.discriminator.loss(
-                    real_prediction,
-                    fake_prediction
+                    real_output,
+                    fake_output
                 )
 
-            discriminator_gradients = tape.gradient(
+            gradients = tape.gradient(
                 discr_loss,
                 self.discriminator.trainable_variables
             )
 
             self.discriminator.optimizer.apply_gradients(
                 zip(
-                    discriminator_gradients,
+                    gradients,
                     self.discriminator.trainable_variables
                 )
             )
 
         with tf.GradientTape() as tape:
-            fake_sample = self.get_fake_sample(training=True)
+            fake_sample = self.get_fake_sample(
+                training=True
+            )
 
-            fake_prediction = self.discriminator(
+            fake_output = self.discriminator(
                 fake_sample,
                 training=False
             )
 
             gen_loss = self.generator.loss(
-                fake_prediction
+                fake_output
             )
 
-        generator_gradients = tape.gradient(
+        gradients = tape.gradient(
             gen_loss,
             self.generator.trainable_variables
         )
 
         self.generator.optimizer.apply_gradients(
             zip(
-                generator_gradients,
+                gradients,
                 self.generator.trainable_variables
             )
         )
