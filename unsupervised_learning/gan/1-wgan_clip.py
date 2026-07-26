@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Defines a Wasserstein GAN using discriminator weight clipping."""
+"""Defines a Wasserstein GAN using weight clipping."""
 
 import tensorflow as tf
 from tensorflow import keras
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 class WGAN_clip(keras.Model):
-    """Represents a Wasserstein GAN using weight clipping."""
+    """Defines a Wasserstein GAN using discriminator weight clipping."""
 
     def __init__(self, generator, discriminator, latent_generator,
                  real_examples, batch_size=200, disc_iter=2,
@@ -27,7 +27,10 @@ class WGAN_clip(keras.Model):
         self.beta_1 = 0.5
         self.beta_2 = 0.9
 
-        self.generator.loss = lambda x, y: -tf.math.reduce_mean(x)
+        self.generator.loss = (
+            lambda fake_output:
+            -tf.math.reduce_mean(fake_output)
+        )
 
         self.generator.optimizer = keras.optimizers.Adam(
             learning_rate=self.learning_rate,
@@ -41,8 +44,9 @@ class WGAN_clip(keras.Model):
         )
 
         self.discriminator.loss = (
-            lambda x, y:
-            tf.math.reduce_mean(x) - tf.math.reduce_mean(y)
+            lambda real_output, fake_output:
+            tf.math.reduce_mean(fake_output)
+            - tf.math.reduce_mean(real_output)
         )
 
         self.discriminator.optimizer = keras.optimizers.Adam(
@@ -57,7 +61,7 @@ class WGAN_clip(keras.Model):
         )
 
     def get_fake_sample(self, size=None, training=False):
-        """Generate a batch of fake samples."""
+        """Generate fake samples."""
         if size is None:
             size = self.batch_size
 
@@ -67,14 +71,22 @@ class WGAN_clip(keras.Model):
         )
 
     def get_real_sample(self, size=None):
-        """Return a random batch of real samples."""
+        """Return randomly selected real samples."""
         if size is None:
             size = self.batch_size
 
-        sorted_indices = tf.range(tf.shape(self.real_examples)[0])
-        random_indices = tf.random.shuffle(sorted_indices)[:size]
+        sorted_indices = tf.range(
+            tf.shape(self.real_examples)[0]
+        )
 
-        return tf.gather(self.real_examples, random_indices)
+        random_indices = tf.random.shuffle(
+            sorted_indices
+        )[:size]
+
+        return tf.gather(
+            self.real_examples,
+            random_indices
+        )
 
     def train_step(self, useless_argument):
         """Perform one Wasserstein GAN training step."""
@@ -94,8 +106,8 @@ class WGAN_clip(keras.Model):
                 )
 
                 discr_loss = self.discriminator.loss(
-                    fake_output,
-                    real_output
+                    real_output,
+                    fake_output
                 )
 
             gradients = tape.gradient(
@@ -112,11 +124,17 @@ class WGAN_clip(keras.Model):
 
             for variable in self.discriminator.trainable_variables:
                 variable.assign(
-                    tf.clip_by_value(variable, -1, 1)
+                    tf.clip_by_value(
+                        variable,
+                        -1.0,
+                        1.0
+                    )
                 )
 
         with tf.GradientTape() as tape:
-            fake_sample = self.get_fake_sample(training=True)
+            fake_sample = self.get_fake_sample(
+                training=True
+            )
 
             fake_output = self.discriminator(
                 fake_sample,
@@ -124,8 +142,7 @@ class WGAN_clip(keras.Model):
             )
 
             gen_loss = self.generator.loss(
-                fake_output,
-                None
+                fake_output
             )
 
         gradients = tape.gradient(
