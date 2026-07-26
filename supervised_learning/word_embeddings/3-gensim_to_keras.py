@@ -11,8 +11,7 @@ def gensim_to_keras(model):
         model: A trained Gensim Word2Vec model.
 
     Returns:
-        A trainable Keras Embedding layer initialized with the
-        Word2Vec vectors.
+        A trainable Keras Embedding layer.
     """
     weights = model.wv.vectors
 
