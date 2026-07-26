@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 
 
 class Simple_GAN(keras.Model):
-    """Simple Generative Adversarial Network model."""
+    """Defines a simple Generative Adversarial Network."""
 
     def __init__(self, generator, discriminator, latent_generator,
                  real_examples, batch_size=200, disc_iter=2,
                  learning_rate=0.005):
-        """Initialize a Simple GAN instance."""
+        """Initialize a Simple GAN model."""
         super().__init__()
 
         self.latent_generator = latent_generator
@@ -31,7 +31,7 @@ class Simple_GAN(keras.Model):
             lambda x:
             tf.keras.losses.MeanSquaredError()(
                 x,
-                tf.ones_like(x)
+                tf.ones(x.shape)
             )
         )
 
@@ -50,11 +50,11 @@ class Simple_GAN(keras.Model):
             lambda x, y:
             tf.keras.losses.MeanSquaredError()(
                 x,
-                tf.ones_like(x)
+                tf.ones(x.shape)
             )
             + tf.keras.losses.MeanSquaredError()(
                 y,
-                -tf.ones_like(y)
+                -tf.ones(y.shape)
             )
         )
 
@@ -70,7 +70,7 @@ class Simple_GAN(keras.Model):
         )
 
     def get_fake_sample(self, size=None, training=False):
-        """Generate a batch of fake samples."""
+        """Generate fake samples of the requested size."""
         if size is None:
             size = self.batch_size
 
@@ -80,7 +80,7 @@ class Simple_GAN(keras.Model):
         )
 
     def get_real_sample(self, size=None):
-        """Return a random batch of real samples."""
+        """Return random real samples of the requested size."""
         if size is None:
             size = self.batch_size
 
@@ -98,61 +98,59 @@ class Simple_GAN(keras.Model):
         )
 
     def train_step(self, useless_argument):
-        """Perform one complete GAN training step."""
+        """Perform one complete training step for the GAN."""
         for _ in range(self.disc_iter):
             with tf.GradientTape() as tape:
                 real_sample = self.get_real_sample()
                 fake_sample = self.get_fake_sample()
 
-                real_output = self.discriminator(
+                real_prediction = self.discriminator(
                     real_sample,
                     training=True
                 )
 
-                fake_output = self.discriminator(
+                fake_prediction = self.discriminator(
                     fake_sample,
                     training=True
                 )
 
                 discr_loss = self.discriminator.loss(
-                    real_output,
-                    fake_output
+                    real_prediction,
+                    fake_prediction
                 )
 
-            gradients = tape.gradient(
+            discriminator_gradients = tape.gradient(
                 discr_loss,
                 self.discriminator.trainable_variables
             )
 
             self.discriminator.optimizer.apply_gradients(
                 zip(
-                    gradients,
+                    discriminator_gradients,
                     self.discriminator.trainable_variables
                 )
             )
 
         with tf.GradientTape() as tape:
-            fake_sample = self.get_fake_sample(
-                training=True
-            )
+            fake_sample = self.get_fake_sample(training=True)
 
-            fake_output = self.discriminator(
+            fake_prediction = self.discriminator(
                 fake_sample,
                 training=False
             )
 
             gen_loss = self.generator.loss(
-                fake_output
+                fake_prediction
             )
 
-        gradients = tape.gradient(
+        generator_gradients = tape.gradient(
             gen_loss,
             self.generator.trainable_variables
         )
 
         self.generator.optimizer.apply_gradients(
             zip(
-                gradients,
+                generator_gradients,
                 self.generator.trainable_variables
             )
         )
