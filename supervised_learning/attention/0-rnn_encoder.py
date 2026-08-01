@@ -48,11 +48,14 @@ class RNNEncoder(tf.keras.layers.Layer):
         Run the encoder.
 
         Args:
-            x: Tensor of shape (batch, input_seq_len) containing word indices.
-            initial: Tensor of shape (batch, units) containing the initial state.
+            x: Tensor of shape (batch, input_seq_len)
+                containing word indices.
+            initial: Tensor of shape (batch, units)
+                containing the initial hidden state.
 
         Returns:
-            outputs: Tensor of shape (batch, input_seq_len, units).
+            outputs: Tensor of shape
+                (batch, input_seq_len, units).
             hidden: Tensor of shape (batch, units).
         """
         x = self.embedding(x)
