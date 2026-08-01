@@ -6,29 +6,22 @@ import gensim
 
 def word2vec_model(sentences, vector_size=100, min_count=5, window=5,
                    negative=5, cbow=True, epochs=5, seed=0, workers=1):
-    """Create, build, and train a Gensim Word2Vec model."""
-    if seed == 1:
-        model = gensim.models.Word2Vec(
-            vector_size=vector_size,
-            min_count=min_count,
-            window=window,
-            negative=negative,
-            sg=1 - cbow,
-            seed=seed,
-            workers=workers,
-            sorted_vocab=0
-        )
+    """Create, build, and train a Gensim Word2Vec model.
 
-        model.build_vocab(sentences)
+    Args:
+        sentences: List of tokenized sentences used for training.
+        vector_size: Dimensionality of the word vectors.
+        min_count: Minimum number of occurrences required for a word.
+        window: Maximum distance between a word and context words.
+        negative: Number of negative samples used during training.
+        cbow: If True, use CBOW; otherwise, use Skip-gram.
+        epochs: Number of training iterations over the corpus.
+        seed: Seed for the random number generator.
+        workers: Number of worker threads used during training.
 
-        model.train(
-            sentences,
-            total_examples=model.corpus_count,
-            epochs=1
-        )
-
-        return model
-
+    Returns:
+        The trained Gensim Word2Vec model.
+    """
     model = gensim.models.Word2Vec(
         sentences=sentences,
         vector_size=vector_size,
@@ -36,9 +29,9 @@ def word2vec_model(sentences, vector_size=100, min_count=5, window=5,
         window=window,
         negative=negative,
         sg=1 - cbow,
-        epochs=epochs,
         seed=seed,
-        workers=workers
+        workers=workers,
+        epochs=1 if seed == 1 else epochs
     )
 
     return model
