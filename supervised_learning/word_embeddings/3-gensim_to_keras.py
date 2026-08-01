@@ -11,23 +11,15 @@ def gensim_to_keras(model):
         model: A trained Gensim Word2Vec model.
 
     Returns:
-        A trainable Keras Embedding layer initialized with the
-        Word2Vec vectors.
+        A trainable Keras Embedding layer.
     """
-    words = model.wv.index_to_key
-
-    indices = [
-        model.wv.key_to_index[word]
-        for word in words
-    ]
-
-    weights = model.wv.vectors[indices]
-
-    embedding = tf.keras.layers.Embedding(
-        input_dim=weights.shape[0],
-        output_dim=weights.shape[1],
-        weights=[weights],
+    layer = tf.keras.layers.Embedding(
+        input_dim=model.wv.vectors.shape[0],
+        output_dim=model.wv.vectors.shape[1],
+        embeddings_initializer=tf.keras.initializers.Constant(
+            model.wv.vectors
+        ),
         trainable=True
     )
 
-    return embedding
+    return layer
