@@ -6,7 +6,7 @@ import tensorflow as tf
 
 def gensim_to_keras(model):
     """Convert a Gensim Word2Vec model to a trainable Keras layer."""
-    weights = model.wv.vectors
+    weights = model.wv.vectors[::-1].copy()
 
     embedding = tf.keras.layers.Embedding(
         input_dim=weights.shape[0],
