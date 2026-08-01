@@ -16,20 +16,18 @@ def gensim_to_keras(model):
     """
     words = model.wv.index_to_key
 
-    weights = [
-        model.wv.get_vector(word)
+    indices = [
+        model.wv.key_to_index[word]
         for word in words
     ]
 
-    weights = tf.stack(weights)
+    weights = model.wv.vectors[indices]
 
-    layer = tf.keras.layers.Embedding(
-        input_dim=len(words),
-        output_dim=model.wv.vector_size,
-        embeddings_initializer=tf.keras.initializers.Constant(weights),
+    embedding = tf.keras.layers.Embedding(
+        input_dim=weights.shape[0],
+        output_dim=weights.shape[1],
+        weights=[weights],
         trainable=True
     )
 
-    layer.build((None,))
-
-    return layer
+    return embedding
