@@ -31,7 +31,7 @@ def word2vec_model(sentences, vector_size=100, min_count=5, window=5,
         sg=1 - cbow,
         seed=seed,
         workers=workers,
-        epochs=1 if seed == 1 else epochs
+        epochs=epochs
     )
 
     return model
