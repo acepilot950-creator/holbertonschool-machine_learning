@@ -7,7 +7,7 @@ SelfAttention = __import__('1-self_attention').SelfAttention
 
 
 class RNNDecoder(tf.keras.layers.Layer):
-    """Decodes a target sequence using attention and a GRU."""
+    """Decodes a target word using attention and a GRU."""
 
     def __init__(self, vocab, embedding, units, batch):
         """
@@ -15,7 +15,7 @@ class RNNDecoder(tf.keras.layers.Layer):
 
         Args:
             vocab: Size of the output vocabulary.
-            embedding: Dimensionality of the embedding vectors.
+            embedding: Dimensionality of embedding vectors.
             units: Number of hidden units in the GRU.
             batch: Batch size.
         """
@@ -38,7 +38,7 @@ class RNNDecoder(tf.keras.layers.Layer):
 
     def call(self, x, s_prev, hidden_states):
         """
-        Run one decoding step.
+        Perform one decoding step.
 
         Args:
             x: Tensor of shape (batch, 1) containing the previous
@@ -46,28 +46,28 @@ class RNNDecoder(tf.keras.layers.Layer):
             s_prev: Tensor of shape (batch, units) containing the
                 previous decoder hidden state.
             hidden_states: Tensor of shape
-                (batch, input_seq_len, units) containing the encoder
+                (batch, input_seq_len, units) containing encoder
                 outputs.
 
         Returns:
-            y: Tensor of shape (batch, vocab) containing output
-                vocabulary scores.
-            s: Tensor of shape (batch, units) containing the new
-                decoder hidden state.
+            y: Tensor of shape (batch, vocab).
+            s: Tensor of shape (batch, units).
         """
         context, _ = self.attention(s_prev, hidden_states)
 
         x = self.embedding(x)
 
         context = tf.expand_dims(context, axis=1)
+
         x = tf.concat([context, x], axis=-1)
 
-        outputs, s = self.gru(
-            x,
-            initial_state=s_prev
+        output, s = self.gru(x)
+
+        output = tf.reshape(
+            output,
+            (-1, output.shape[2])
         )
 
-        outputs = tf.reshape(outputs, (-1, outputs.shape[2]))
-        y = self.F(outputs)
+        y = self.F(output)
 
         return y, s
