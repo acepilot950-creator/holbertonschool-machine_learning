@@ -2,10 +2,7 @@
 """Transformer encoder block module."""
 
 import tensorflow as tf
-
-MultiHeadAttention = __import__(
-    '6-multihead_attention'
-).MultiHeadAttention
+MultiHeadAttention = __import__('6-multihead_attention').MultiHeadAttention
 
 
 class EncoderBlock(tf.keras.layers.Layer):
@@ -29,13 +26,11 @@ class EncoderBlock(tf.keras.layers.Layer):
             hidden,
             activation='relu'
         )
-
         self.dense_output = tf.keras.layers.Dense(dm)
 
         self.layernorm1 = tf.keras.layers.LayerNormalization(
             epsilon=1e-6
         )
-
         self.layernorm2 = tf.keras.layers.LayerNormalization(
             epsilon=1e-6
         )
@@ -55,12 +50,7 @@ class EncoderBlock(tf.keras.layers.Layer):
         Returns:
             Tensor of shape (batch, input_seq_len, dm).
         """
-        attention, _ = self.mha(
-            x,
-            x,
-            x,
-            mask
-        )
+        attention, _ = self.mha(x, x, x, mask)
 
         attention = self.dropout1(
             attention,
