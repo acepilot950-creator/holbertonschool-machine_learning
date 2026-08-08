@@ -1,22 +1,41 @@
 #!/usr/bin/env python3
-"""Creates Bag of Words embeddings for a collection of sentences."""
-
-from sklearn.feature_extraction.text import CountVectorizer
+"""Module that creates a bag of words embedding matrix."""
+import re
+import numpy as np
 
 
 def bag_of_words(sentences, vocab=None):
-    """Create a Bag of Words embedding matrix.
+    """
+    Creates a bag of words embedding matrix.
 
     Args:
-        sentences: List of sentences to analyze.
-        vocab: Optional list of vocabulary words to use as features.
+        sentences: list of sentences to analyze
+        vocab: list of the vocabulary words to use for the analysis
+            If None, all words within sentences should be used
 
     Returns:
-        embeddings: NumPy array containing word occurrence counts.
-        features: NumPy array containing the vocabulary features.
+        embeddings, features
+        embeddings: numpy.ndarray of shape (s, f) containing the embeddings
+            s is the number of sentences in sentences
+            f is the number of features analyzed
+        features: numpy.ndarray of shape (f,) containing the features used
     """
-    vectorizer = CountVectorizer(vocabulary=vocab)
-    embeddings = vectorizer.fit_transform(sentences).toarray()
-    features = vectorizer.get_feature_names_out()
+    tokenized = []
+    for sentence in sentences:
+        clean = re.sub(r"'\w*", "", sentence.lower())
+        tokenized.append(re.findall(r"[a-z0-9]+", clean))
 
-    return embeddings, features
+    if vocab is None:
+        features = sorted(set(word for words in tokenized for word in words))
+    else:
+        features = list(vocab)
+
+    index = {word: i for i, word in enumerate(features)}
+    embeddings = np.zeros((len(sentences), len(features)), dtype=int)
+
+    for i, words in enumerate(tokenized):
+        for word in words:
+            if word in index:
+                embeddings[i, index[word]] += 1
+
+    return embeddings, np.array(features)
