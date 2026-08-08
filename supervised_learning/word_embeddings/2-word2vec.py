@@ -37,5 +37,6 @@ def word2vec_model(sentences, vector_size=100, min_count=5, window=5,
     )
 
     model.build_vocab(sentences)
+    model.wv.sort_by_descending_frequency()
 
     return model
