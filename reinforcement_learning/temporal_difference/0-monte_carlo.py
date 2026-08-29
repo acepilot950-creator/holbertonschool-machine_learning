@@ -11,8 +11,8 @@ def monte_carlo(env, V, policy, episodes=5000,
 
     Args:
         env: environment instance
-        V: numpy.ndarray of shape (s,) containing value estimates
-        policy: function that takes a state and returns an action
+        V: numpy.ndarray of shape (s,) containing the value estimate
+        policy: function that takes a state and returns the next action
         episodes: total number of episodes to train over
         max_steps: maximum number of steps per episode
         alpha: learning rate
@@ -37,14 +37,14 @@ def monte_carlo(env, V, policy, episodes=5000,
             if terminated or truncated:
                 break
 
-        G = 0
-        visited = set()
+        for i, (state, _) in enumerate(episode):
+            G = 0
 
-        for state, reward in reversed(episode):
-            G = reward + gamma * G
+            for j in range(i, len(episode)):
+                G += (gamma ** (j - i)) * episode[j][1]
 
-            if state not in visited:
-                V[state] += alpha * (G - V[state])
-                visited.add(state)
+            V[state] += alpha * (G - V[state])
+
+        return V
 
     return V
