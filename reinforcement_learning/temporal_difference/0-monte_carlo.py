@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Monte Carlo algorithm."""
 
-import numpy as np
-
 
 def monte_carlo(env, V, policy, episodes=5000,
                 max_steps=100, alpha=0.1, gamma=0.99):
@@ -11,12 +9,12 @@ def monte_carlo(env, V, policy, episodes=5000,
 
     Args:
         env: environment instance
-        V: numpy.ndarray of shape (s,) containing value estimates
-        policy: function that takes a state and returns an action
-        episodes: total number of episodes
-        max_steps: maximum number of steps per episode
+        V: value estimates
+        policy: policy function
+        episodes: number of episodes
+        max_steps: maximum steps per episode
         alpha: learning rate
-        gamma: discount rate
+        gamma: discount factor
 
     Returns:
         V: updated value estimates
@@ -39,9 +37,13 @@ def monte_carlo(env, V, policy, episodes=5000,
                 break
 
         G = 0
+        visited = set()
 
         for state, reward in reversed(episode):
             G = reward + gamma * G
-            V[state] += alpha * (G - V[state])
+
+            if state not in visited:
+                V[state] += alpha * (G - V[state])
+                visited.add(state)
 
     return V
